@@ -24,6 +24,6 @@ public class CompanyEntity {
     @Column(nullable = false)
     private String location;
 
-    @OneToMany(mappedBy = "company")      //Inverse side
+    @OneToMany(mappedBy = "company",cascade = CascadeType.ALL,fetch = FetchType.LAZY)      //Inverse side
     private List<InternshipEntity> internships;
 }

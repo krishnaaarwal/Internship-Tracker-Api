@@ -22,6 +22,6 @@ public class UserEntity {
     @Column(unique = true,nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY,orphanRemoval = true)
     private List<ApplicationEntity> applications;
 }

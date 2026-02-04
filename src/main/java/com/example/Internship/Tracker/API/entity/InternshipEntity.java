@@ -28,7 +28,7 @@ public class InternshipEntity {
     @JoinColumn(name = "company_id", nullable = false)    //Owning side
     private CompanyEntity company;
 
-    @OneToMany(mappedBy = "internship")
+    @OneToMany(mappedBy = "internship",cascade = CascadeType.REMOVE)
     private List<ApplicationEntity> applications;
 }
 
