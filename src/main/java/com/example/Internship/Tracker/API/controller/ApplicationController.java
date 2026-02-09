@@ -18,11 +18,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationController {
 
-    private ApplicationService applicationService;
+    private final ApplicationService applicationService;
 
-    @GetMapping("/applications/user/{userId}")
+    @GetMapping("/applications/user/{userId}/all")
     public ResponseEntity<List<ApplicationDtoResponse>> getApplications(@PathVariable Long userId){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.getApplications(userId));
+    }
+
+    @GetMapping("/applications/user/{userId}")
+    public ResponseEntity<Page<ApplicationDtoResponse>> getApplicationsBasedOnAppliedDate(@PathVariable @Valid Long userId, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(applicationService.applicationsOrderByAppliedDate(userId,pageable));
     }
 
     @DeleteMapping("/applications/{id}")
@@ -44,10 +49,5 @@ public class ApplicationController {
     @GetMapping("/applications/analytics/user/{userId}/status-count")
     public ResponseEntity<List<ApplicationStatusCountDtoResponse>> getUserApplicationStatus(@PathVariable Long userId){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.countAllApplicationStatus(userId));
-    }
-
-    @GetMapping("/applications/user/{userId}")
-    public ResponseEntity<Page<ApplicationDtoResponse>> getApplicationsBasedOnAppliedDate(@PathVariable @Valid Long userId, Pageable pageable){
-        return ResponseEntity.status(HttpStatus.OK).body(applicationService.applicationsOrderByAppliedDate(userId,pageable));
     }
 }

@@ -4,20 +4,27 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public enum ApplicationStatus {
+    OFFER,
+    REJECTED,
+    INTERVIEW,
+    APPLIED;
 
-    OFFER(EnumSet.noneOf(ApplicationStatus.class)) ,
-    REJECTED(EnumSet.noneOf(ApplicationStatus.class)) ,
-    INTERVIEW(EnumSet.of(OFFER,REJECTED)),
-    APPLIED(EnumSet.of(INTERVIEW,REJECTED));
-
-
-    private final Set<ApplicationStatus> allowedNext;
-
-   ApplicationStatus(Set<ApplicationStatus> allowedNext){
-        this.allowedNext = allowedNext;
+    public boolean canTransitionTo(ApplicationStatus nextStatus) {
+        return getAllowedNext().contains(nextStatus);
     }
 
-    public boolean canTransitionTo(ApplicationStatus nextStatus){
-       return allowedNext.contains(nextStatus);
+    private Set<ApplicationStatus> getAllowedNext() {
+        switch (this) {
+            case OFFER:
+                return EnumSet.noneOf(ApplicationStatus.class);
+            case REJECTED:
+                return EnumSet.noneOf(ApplicationStatus.class);
+            case INTERVIEW:
+                return EnumSet.of(OFFER, REJECTED);
+            case APPLIED:
+                return EnumSet.of(INTERVIEW, REJECTED);
+            default:
+                return EnumSet.noneOf(ApplicationStatus.class);
+        }
     }
 }

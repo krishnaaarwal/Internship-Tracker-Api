@@ -14,11 +14,11 @@ import java.util.List;
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity,Long> {
     List<ApplicationEntity> findByUserId(Long userId);
 
-    @Query("SELECT new com.example.Internship.Tracker.API.dto.application_dto.ApplicationStatusCountDtoResponse(a.ApplicationStatus , COUNT(a))"
-     + "FROM ApplicationEntity a" +
-    "GROUP by a.ApplicationStatus")
+    @Query("SELECT new com.example.Internship.Tracker.API.dto.application_dto.ApplicationStatusCountDtoResponse(a.applicationStatus, COUNT(a)) " +
+            "FROM ApplicationEntity a " +
+            "WHERE a.user.id = :userId " +
+            "GROUP BY a.applicationStatus")
     List<ApplicationStatusCountDtoResponse> groupApplications(Long userId);
 
     Page<ApplicationEntity> findByUserIdOrderByAppliedDateDesc(Long userId, Pageable pageable);
-
 }
