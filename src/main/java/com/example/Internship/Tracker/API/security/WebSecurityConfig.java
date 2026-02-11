@@ -18,7 +18,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
         httpSecurity
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/public/**").permitAll()
+                        auth.requestMatchers("/public/**","/auth/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/doctors/**").hasAnyRole("DOCTOR","ADMIN")
                 )

@@ -2,6 +2,7 @@ package com.example.Internship.Tracker.API.controller;
 
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
+import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
 import com.example.Internship.Tracker.API.security.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(body));
     }
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupResponseDto body){
+    public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto body){
         return ResponseEntity.status(HttpStatus.OK).body(authService.signup(body));
     }
 }

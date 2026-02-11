@@ -1,6 +1,7 @@
 package com.example.Internship.Tracker.API.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
 @Table(name = "user_table")
 public class UserEntity implements UserDetails {
     //ORM (Object relation mapping)
@@ -25,6 +27,7 @@ public class UserEntity implements UserDetails {
     @Column(unique = true,nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY,orphanRemoval = true)
