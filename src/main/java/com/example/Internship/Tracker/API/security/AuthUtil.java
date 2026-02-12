@@ -1,6 +1,7 @@
 package com.example.Internship.Tracker.API.security;
 
 import com.example.Internship.Tracker.API.entity.UserEntity;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -31,5 +32,15 @@ public class AuthUtil {
                 .claim("userId",userEntity.getId().toString())
                 .compact();
 
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getSubject();
     }
 }

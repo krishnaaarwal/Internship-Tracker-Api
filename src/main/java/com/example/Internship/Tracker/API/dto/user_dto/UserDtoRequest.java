@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserDtoRequest {
     @NotBlank(message = "Name cannot be blank")
     @Size(min = 3,max  =30,message = "Name size should be 3 to 30 characters")
-    private String name;
+    private String username;
 
     @Email
     @NotBlank(message = "Email cannot be blank")

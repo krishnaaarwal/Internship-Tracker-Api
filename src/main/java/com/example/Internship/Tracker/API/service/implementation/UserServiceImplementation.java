@@ -66,7 +66,7 @@ public class UserServiceImplementation implements UserService {
 
         changes.forEach((field,value)->{
             switch (field){
-                case "name":foundUser.setName(value.toString());
+                case "name":foundUser.setUsername(value.toString());
                 break;
                 case "email":foundUser.setEmail(value.toString());
                 break;

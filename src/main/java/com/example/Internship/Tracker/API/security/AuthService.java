@@ -49,7 +49,7 @@ public class AuthService {
        if(user!=null)
            throw new IllegalArgumentException("User already exists");
 
-        user = userRepository.save(UserEntity.builder().username(body.getUsername()).password(passwordEncoder.encode(body.getPassword())).build());
+        user = userRepository.save(UserEntity.builder().username(body.getUsername()).password(passwordEncoder.encode(body.getPassword())).email(body.getEmail()).build());
 
         return modelMapper.map(user,SignupResponseDto.class);
     }
