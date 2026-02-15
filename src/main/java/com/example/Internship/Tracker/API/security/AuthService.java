@@ -1,18 +1,23 @@
 package com.example.Internship.Tracker.API.security;
 
+import com.example.Internship.Tracker.API.config.type.AuthProviderType;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,14 +48,62 @@ public class AuthService {
         return new LoginResponseDto(token, user.getId());
     }
 
+    public UserEntity signupInternal(SignupRequestDto body,AuthProviderType authProviderType,String providerId){
+        UserEntity user = userRepository.findByUsername(body.getUsername()).orElse(null);
+
+        if(user!=null)
+            throw new IllegalArgumentException("User already exists");
+
+        user = UserEntity.builder()
+                .username(body.getUsername())
+                .email(body.getEmail())
+                .providerId(providerId)
+                .providerType(authProviderType)
+                .build();
+
+        if(authProviderType == AuthProviderType.EMAIL){
+            user.setPassword(passwordEncoder.encode(body.getPassword()));
+        }
+        return userRepository.save(user);
+    }
+
+    //Controller
     public SignupResponseDto signup(SignupRequestDto body) {
-       UserEntity user = userRepository.findByUsername(body.getUsername()).orElse(null);
-
-       if(user!=null)
-           throw new IllegalArgumentException("User already exists");
-
-        user = userRepository.save(UserEntity.builder().username(body.getUsername()).password(passwordEncoder.encode(body.getPassword())).email(body.getEmail()).build());
-
+        UserEntity user = signupInternal(body,AuthProviderType.EMAIL,null);
         return modelMapper.map(user,SignupResponseDto.class);
+    }
+
+    @Transactional
+    public ResponseEntity<LoginResponseDto> handleOauth2LoginRequest(OAuth2User oAuth2User, String registrationId) {
+        // Find Provider type and id
+        //save the provider type and id Info with user
+        //If user has an account -> directly login
+        // if not -> signup -> login
+
+        AuthProviderType providerType = authUtil.getProviderTypeFromRegistrationId(registrationId);
+        String providerId = authUtil.determineProviderIdFromOauth2User(oAuth2User,registrationId);
+
+        UserEntity user = userRepository.findByProviderIdAndProviderType(providerId,providerType).orElse(null);
+
+        String email = oAuth2User.getAttribute("email");
+
+        UserEntity emailUser = userRepository.findByEmail(email).orElse(null);
+
+        if(user == null && emailUser == null){
+            //signup flow:
+            String emailSignup = authUtil.determineEmailFromOauth2User(oAuth2User,registrationId,providerId);
+            user = signupInternal(new SignupRequestDto(emailSignup,null,emailSignup),providerType,providerId);
+        } else if (user!=null) {
+            if(email!=null && !email.isBlank() && !email.equals(user.getEmail())){
+                user.setEmail(email);
+                userRepository.save(user);
+            }
+        }else {
+            throw new BadCredentialsException("This email is already registered with provider : "+emailUser.getProviderType());
+        }
+
+        LoginResponseDto loginResponseDto = new LoginResponseDto(authUtil.generateAccessToken(user), user.getId());
+
+        return ResponseEntity.ok(loginResponseDto);
     }
 }

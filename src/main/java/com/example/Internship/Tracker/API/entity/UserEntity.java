@@ -1,5 +1,6 @@
 package com.example.Internship.Tracker.API.entity;
 
+import com.example.Internship.Tracker.API.config.type.AuthProviderType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,6 +33,11 @@ public class UserEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY,orphanRemoval = true)
     private List<ApplicationEntity> applications;
+
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProviderType providerType;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
