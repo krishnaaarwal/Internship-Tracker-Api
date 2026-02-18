@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,10 +27,12 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.getApplications(userId));
     }
 
+
     @GetMapping("/applications/user/{userId}")
     public ResponseEntity<Page<ApplicationDtoResponse>> getApplicationsBasedOnAppliedDate(@PathVariable @Valid Long userId, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.applicationsOrderByAppliedDate(userId,pageable));
     }
+
 
     @DeleteMapping("/applications/{id}")
     public ResponseEntity<Void> deleteApplication(@PathVariable Long id){
@@ -36,15 +40,18 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
     @PostMapping("/applications")
     public ResponseEntity<ApplicationDtoResponse> createApplication(@RequestBody ApplicationDtoRequest application){
         return ResponseEntity.status(HttpStatus.CREATED).body(applicationService.createApplication(application));
     }
 
+
     @PutMapping("/applications/{id}/status")
     public ResponseEntity<ApplicationDtoResponse> updateApplication(@PathVariable Long id,@RequestBody @Valid ApplicationDtoRequest application){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.updateApplication(id,application));
     }
+
 
     @GetMapping("/applications/analytics/user/{userId}/status-count")
     public ResponseEntity<List<ApplicationStatusCountDtoResponse>> getUserApplicationStatus(@PathVariable Long userId){

@@ -1,6 +1,7 @@
 package com.example.Internship.Tracker.API.security;
 
 import com.example.Internship.Tracker.API.config.type.AuthProviderType;
+import com.example.Internship.Tracker.API.config.type.RoleType;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
@@ -9,7 +10,6 @@ import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -28,14 +30,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthUtil authUtil;
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
 
     public LoginResponseDto login(LoginRequestDto body) {
         // 1. AuthenticationManager delegates to AuthenticationProvider
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(body.getUsername(), body.getPassword())
+                new UsernamePasswordAuthenticationToken(body.getEmail(),body.getPassword())
         );
+
+        //Principals() -> Username and details
+        //Credentials() -> Password
+        //Details() -> session id and ip address
+
         // Actually, AuthenticationManager → ProviderManager → DaoAuthenticationProvider
         // DaoAuthenticationProvider uses UserDetailsService + PasswordEncoder
 
@@ -49,23 +55,25 @@ public class AuthService {
     }
 
     public UserEntity signupInternal(SignupRequestDto body,AuthProviderType authProviderType,String providerId){
-        UserEntity user = userRepository.findByUsername(body.getUsername()).orElse(null);
+        UserEntity user = userRepository.findByEmail(body.getEmail()).orElse(null);
 
         if(user!=null)
             throw new IllegalArgumentException("User already exists");
 
         user = UserEntity.builder()
-                .username(body.getUsername())
                 .email(body.getEmail())
                 .providerId(providerId)
                 .providerType(authProviderType)
+                .roles(Set.of(RoleType.USER))
                 .build();
 
-        if(authProviderType == AuthProviderType.EMAIL){
+        if(authProviderType == AuthProviderType.EMAIL && body.getPassword() != null){
             user.setPassword(passwordEncoder.encode(body.getPassword()));
         }
         return userRepository.save(user);
     }
+
+
 
     //Controller
     public SignupResponseDto signup(SignupRequestDto body) {
@@ -92,7 +100,7 @@ public class AuthService {
         if(user == null && emailUser == null){
             //signup flow:
             String emailSignup = authUtil.determineEmailFromOauth2User(oAuth2User,registrationId,providerId);
-            user = signupInternal(new SignupRequestDto(emailSignup,null,emailSignup),providerType,providerId);
+            user = signupInternal(new SignupRequestDto(null,emailSignup),providerType,providerId);
         } else if (user!=null) {
             if(email!=null && !email.isBlank() && !email.equals(user.getEmail())){
                 user.setEmail(email);

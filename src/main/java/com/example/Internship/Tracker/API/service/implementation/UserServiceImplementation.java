@@ -1,10 +1,15 @@
 package com.example.Internship.Tracker.API.service.implementation;
 
+import com.example.Internship.Tracker.API.config.type.RoleType;
+import com.example.Internship.Tracker.API.dto.OnBoardRecruiterRequestDto;
 import com.example.Internship.Tracker.API.dto.user_dto.UserDtoRequest;
 import com.example.Internship.Tracker.API.dto.user_dto.UserDtoResponse;
+import com.example.Internship.Tracker.API.entity.CompanyEntity;
 import com.example.Internship.Tracker.API.entity.UserEntity;
+import com.example.Internship.Tracker.API.repository.CompanyRepository;
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import com.example.Internship.Tracker.API.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -12,12 +17,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImplementation implements UserService {
 
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -66,8 +73,6 @@ public class UserServiceImplementation implements UserService {
 
         changes.forEach((field,value)->{
             switch (field){
-                case "name":foundUser.setUsername(value.toString());
-                break;
                 case "email":foundUser.setEmail(value.toString());
                 break;
                 default:
@@ -77,5 +82,31 @@ public class UserServiceImplementation implements UserService {
         });
         UserEntity updated = userRepository.save(foundUser);
         return modelMapper.map(updated,UserDtoResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public UserDtoResponse onBoardNewRecruiter(OnBoardRecruiterRequestDto onBoardRecruiterRequestDto) {
+        UserEntity userEntity = userRepository.findById(onBoardRecruiterRequestDto.getUserId()).orElseThrow(()->new IllegalArgumentException("User not found with userId: "+onBoardRecruiterRequestDto.getUserId()));
+        CompanyEntity companyEntity = companyRepository.findById(onBoardRecruiterRequestDto.getCompanyId()).orElseThrow(()->new IllegalArgumentException("Company not found with companyId: "+onBoardRecruiterRequestDto.getCompanyId()));
+
+        if(userEntity.getRoles().contains(RoleType.RECRUITER)) {
+            throw new IllegalStateException("User is already a recruiter");
+        }
+
+        if(userEntity.getRoles().contains(RoleType.ADMIN)) {
+            throw new IllegalStateException("NO ONE CAN CHANGE ADMIN!");
+        }
+
+        if(userEntity.getCompany()==null) {
+            userEntity.setCompany(companyEntity);
+        }
+        if (!Objects.equals(userEntity.getCompany().getId(), onBoardRecruiterRequestDto.getCompanyId())) {
+            throw new IllegalArgumentException("Company cannot be changed");
+        }
+        userEntity.getRoles().add(RoleType.RECRUITER);
+
+        UserEntity onboardedUser = userRepository.save(userEntity);
+        return modelMapper.map(onboardedUser, UserDtoResponse.class);
     }
 }

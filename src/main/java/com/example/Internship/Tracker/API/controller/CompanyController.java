@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,15 +35,17 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(companyService.createCompany(companyDtoRequest));
     }
 
-    @PutMapping("/company/{id}")
+
+
     public ResponseEntity<CompanyDtoResponse> updateCompany(@PathVariable Long id , @RequestBody @Valid CompanyDtoRequest updatedCompany){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.updateCompany(id,updatedCompany));
     }
 
-    @PatchMapping("/company/{id}")
+@PatchMapping("/company/{id}")
     public  ResponseEntity<CompanyDtoResponse> updatePartialCompany(@PathVariable Long id, Map<String,Object> updates){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.updatePartialCompany(id,updates));
     }
+
 
     @DeleteMapping("/company/{id}")
     public void deleteCompany(@PathVariable Long id){

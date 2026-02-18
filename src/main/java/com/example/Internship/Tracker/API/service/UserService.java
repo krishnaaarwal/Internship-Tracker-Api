@@ -1,7 +1,9 @@
 package com.example.Internship.Tracker.API.service;
 
+import com.example.Internship.Tracker.API.dto.OnBoardRecruiterRequestDto;
 import com.example.Internship.Tracker.API.dto.user_dto.UserDtoRequest;
 import com.example.Internship.Tracker.API.dto.user_dto.UserDtoResponse;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -14,4 +16,6 @@ public interface UserService {
     void deleteUsers(Long id);
     UserDtoResponse updateUsers(Long id, UserDtoRequest user);
     UserDtoResponse updatePartialUsers(Long id, Map<String, Object> changes);
+
+    UserDtoResponse onBoardNewRecruiter(OnBoardRecruiterRequestDto onBoardRecruiterRequestDto);
 }

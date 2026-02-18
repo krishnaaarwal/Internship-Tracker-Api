@@ -26,14 +26,13 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();   //Because getPrincipal give username and details so we need to type cast it to user type
 
         String registrationId = token.getAuthorizedClientRegistrationId();
 
         ResponseEntity<LoginResponseDto> oauth2LoginResponse = authService.handleOauth2LoginRequest(oAuth2User,registrationId);
 
         // 3 lines:
-
         response.setStatus(oauth2LoginResponse.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(oauth2LoginResponse.getBody()));

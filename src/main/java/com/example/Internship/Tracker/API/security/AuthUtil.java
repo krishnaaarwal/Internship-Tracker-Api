@@ -27,16 +27,16 @@ public class AuthUtil {
 
     public String generateAccessToken(UserEntity userEntity){
         return Jwts.builder()
-                .subject(userEntity.getUsername())
+                .subject(userEntity.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+1000*60*15))
-                .signWith(getSecretKey())
-                .claim("userId",userEntity.getId().toString())
+                .signWith(getSecretKey())     // signature create
+                .claim("userId",userEntity.getId().toString())     // custom payload field
                 .compact();
 
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
