@@ -1,7 +1,7 @@
 Internship Tracker API
 
 A production-minded Spring Boot backend to track internship postings and applications — built the right way: security-first, permission-driven, and ownership-aware.
-You learned a ton building this; this README captures what the project actually is, how it’s designed, and how to run and extend it.
+I learned a ton building this; this README captures what the project actually is, how it’s designed, and how to run and extend it.
 
 Summary
 
