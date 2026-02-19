@@ -12,6 +12,8 @@ import com.example.Internship.Tracker.API.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class UserServiceImplementation implements UserService {
     private final CompanyRepository companyRepository;
     private final ModelMapper modelMapper;
 
+    @PreAuthorize("hasAuthority('USER_READ') and @authz.isAdmin()")
     @Override
     public List<UserDtoResponse> getUserList() {
         List<UserEntity> userEntityList = userRepository.findAll();
@@ -34,6 +37,7 @@ public class UserServiceImplementation implements UserService {
                 modelMapper.map(userEntity, UserDtoResponse.class)).toList();
     }
 
+    @PreAuthorize("hasAuthority('USER_READ') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @Override
     public UserDtoResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
@@ -42,6 +46,7 @@ public class UserServiceImplementation implements UserService {
         return modelMapper.map(userEntity, UserDtoResponse.class);   //Model mapper is used to map one model to another efficiently
     }
 
+    @PreAuthorize("hasAuthority('USER_WRITE')")
     @Override
     public UserDtoResponse createUsers(UserDtoRequest user) {
         UserEntity newUserEntity = modelMapper.map(user, UserEntity.class); // UserDtoRequest to UserEntity
@@ -50,6 +55,7 @@ public class UserServiceImplementation implements UserService {
         return response;  //Returning the Response of UserDto
     }
 
+    @PreAuthorize("hasAuthority('USER_DELETE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @Override
     public void deleteUsers(Long id) {
         if (!userRepository.existsById(id)) {
@@ -58,6 +64,7 @@ public class UserServiceImplementation implements UserService {
         userRepository.deleteById(id);
     }
 
+    @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @Override
     public UserDtoResponse updateUsers(Long id, UserDtoRequest user) {
 
@@ -67,6 +74,7 @@ public class UserServiceImplementation implements UserService {
         return modelMapper.map(updatedUser,UserDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @Override
     public UserDtoResponse updatePartialUsers(Long id, Map<String, Object> changes) {
         UserEntity foundUser = userRepository.findById(id).orElseThrow( () ->new IllegalArgumentException("User Not found with id:"+id));
@@ -84,6 +92,7 @@ public class UserServiceImplementation implements UserService {
         return modelMapper.map(updated,UserDtoResponse.class);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     @Transactional
     public UserDtoResponse onBoardNewRecruiter(OnBoardRecruiterRequestDto onBoardRecruiterRequestDto) {

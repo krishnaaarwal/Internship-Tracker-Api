@@ -30,6 +30,7 @@ public class ApplicationServiceImplementation implements ApplicationService {
     private final UserRepository userRepository;
 
 
+    @PreAuthorize("hasAuthority('APPLICATION_READ') and (@authz.isOwner(#userId) or @authz.isAdmin())")
     @Override
     public List<ApplicationDtoResponse> getApplications(Long userId){
         List<ApplicationEntity> applicationEntityList =applicationRepository.findByUserId(userId);
@@ -39,6 +40,7 @@ public class ApplicationServiceImplementation implements ApplicationService {
         ).toList();
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_DELETE') and (@authz.isApplicationOwner(#id) or @authz.isAdmin())")
     @Override
     public void deleteApplication(Long id){
         if(!applicationRepository.existsById(id)){
@@ -47,6 +49,7 @@ public class ApplicationServiceImplementation implements ApplicationService {
         applicationRepository.deleteById(id);
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_WRITE')")
     @Override
     public ApplicationDtoResponse createApplication(ApplicationDtoRequest application) {
        ApplicationEntity applicationEntity =  modelMapper.map(application,ApplicationEntity.class);
@@ -54,6 +57,7 @@ public class ApplicationServiceImplementation implements ApplicationService {
         return modelMapper.map(saved,ApplicationDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_WRITE') and (@authz.isApplicationOwner(#userId) or @authz.isAdmin())")
     @Override
     public ApplicationDtoResponse updateApplication(Long id,ApplicationDtoRequest application) {
 
@@ -63,6 +67,7 @@ public class ApplicationServiceImplementation implements ApplicationService {
         return modelMapper.map(saved,ApplicationDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_WRITE') and (@authz.isApplicationOwner(#userId) or @authz.isAdmin())")
     @Transactional
     @Override
     public ApplicationDtoResponse updateStaus(Long id, ApplicationStatus newStatus){
@@ -79,11 +84,13 @@ public class ApplicationServiceImplementation implements ApplicationService {
       return modelMapper.map(application,ApplicationDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_READ')  and (@authz.isApplicationOwner(#userId) or @authz.isAdmin())")
     @Override
     public List<ApplicationStatusCountDtoResponse> countAllApplicationStatus(Long userId){
         return applicationRepository.groupApplications(userId);
     }
 
+    @PreAuthorize("hasAuthority('APPLICATION_READ')  and (@authz.isApplicationOwner(#userId) or @authz.isAdmin())")
     @Override
     @Transactional
     public Page<ApplicationDtoResponse> applicationsOrderByAppliedDate(Long userId, Pageable pageable){

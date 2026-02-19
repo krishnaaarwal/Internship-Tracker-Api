@@ -9,6 +9,7 @@ import com.example.Internship.Tracker.API.service.InternshipService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class InternshipServiceImplementation implements InternshipService {
     private final CompanyService companyService;
     private final ModelMapper modelMapper;
 
+    @PreAuthorize("hasAuthority('INTERNSHIP_WRITE')")
     @Override
     public InternshipDtoResponse createInternship(InternshipDtoRequest internshipDtoRequest) {
         Long companyId = internshipDtoRequest.getCompanyId();
@@ -28,6 +30,7 @@ public class InternshipServiceImplementation implements InternshipService {
         return modelMapper.map(saved, InternshipDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('INTERNSHIP_READ')")
     @Override
     public List<InternshipDtoResponse> getAllInternships() {
         return internshipRepository.findAll().stream()
@@ -35,12 +38,14 @@ public class InternshipServiceImplementation implements InternshipService {
                 .toList();
     }
 
+    @PreAuthorize("hasAuthority('INTERNSHIP_READ')")
     @Override
     public InternshipDtoResponse getInternshpById(Long id) {
         InternshipEntity internshipEntity= internshipRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Internship with id:"+id+" not found"));
         return modelMapper.map(internshipEntity,InternshipDtoResponse.class);
     }
 
+    @PreAuthorize("hasAuthority('INTERNSHIP_READ')")
     @Override
     public List<InternshipDtoResponse> getInternshipByCompanyId(Long companyId) {
         companyService.getCompanyById(companyId);
