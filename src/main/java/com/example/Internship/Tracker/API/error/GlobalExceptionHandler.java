@@ -1,7 +1,7 @@
 package com.example.Internship.Tracker.API.error;
 
 import io.jsonwebtoken.JwtException;
-import org.apache.tomcat.websocket.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiError> handleUsernameNotFoundException (UsernameNotFoundException usernameNotFoundException){
-        ApiError apiError = new ApiError("Username not found with username : "+usernameNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
+        ApiError apiError = new ApiError("User not found with email : "+usernameNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(apiError,apiError.getHttpStatus());
     }
 
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception exception){
-        ApiError apiError = new ApiError("An unexpected error occurred "+exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        ApiError apiError = new ApiError("An unexpected error occurred :"+exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         return new ResponseEntity<>(apiError,apiError.getHttpStatus());
     }
 }

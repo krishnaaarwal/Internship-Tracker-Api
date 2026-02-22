@@ -29,7 +29,6 @@ public class ApplicationServiceImplementation implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
 
-
     @PreAuthorize("hasAuthority('APPLICATION_READ') and (@authz.isOwner(#userId) or @authz.isAdmin())")
     @Override
     public List<ApplicationDtoResponse> getApplications(Long userId){

@@ -41,4 +41,10 @@ public class InternshipController {
     public ResponseEntity<List<InternshipDtoResponse>> getInternshipByCompanyId(@PathVariable @Valid Long companyId){
         return ResponseEntity.status(HttpStatus.OK).body(internshipService.getInternshipByCompanyId(companyId));
     }
+
+    @DeleteMapping("internships/{id}")
+    public ResponseEntity<Void> deleteInternship(@PathVariable Long id){
+        internshipService.deleteInternship(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

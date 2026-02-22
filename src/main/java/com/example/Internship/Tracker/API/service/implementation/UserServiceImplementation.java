@@ -12,6 +12,9 @@ import com.example.Internship.Tracker.API.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final ModelMapper modelMapper;
+    private static final String CACHE = "users";
 
     @PreAuthorize("hasAuthority('USER_READ') and @authz.isAdmin()")
     @Override
@@ -38,6 +42,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @PreAuthorize("hasAuthority('USER_READ') and (@authz.isOwner(#id) or @authz.isAdmin())")
+    @Cacheable(cacheNames = CACHE,key = "#id")
     @Override
     public UserDtoResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
@@ -47,6 +52,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @PreAuthorize("hasAuthority('USER_WRITE')")
+    @CachePut(cacheNames = CACHE , key = "#result.id")
     @Override
     public UserDtoResponse createUsers(UserDtoRequest user) {
         UserEntity newUserEntity = modelMapper.map(user, UserEntity.class); // UserDtoRequest to UserEntity
@@ -56,6 +62,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @PreAuthorize("hasAuthority('USER_DELETE') and (@authz.isOwner(#id) or @authz.isAdmin())")
+    @CacheEvict(cacheNames = CACHE,key = "#id")
     @Override
     public void deleteUsers(Long id) {
         if (!userRepository.existsById(id)) {
@@ -65,6 +72,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
+    @CachePut(cacheNames = CACHE, key = "#id")
     @Override
     public UserDtoResponse updateUsers(Long id, UserDtoRequest user) {
 
@@ -75,6 +83,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
+    @CachePut(cacheNames = CACHE, key = "#id")
     @Override
     public UserDtoResponse updatePartialUsers(Long id, Map<String, Object> changes) {
         UserEntity foundUser = userRepository.findById(id).orElseThrow( () ->new IllegalArgumentException("User Not found with id:"+id));

@@ -20,7 +20,7 @@ public class AdminController {
 
     private final UserService userService;
 
-    @PostMapping("/onBoardNewRecuriter")
+    @PostMapping("/onBoardNewRecruiter")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<UserDtoResponse> onBoardNewRecruiter(@RequestBody OnBoardRecruiterRequestDto onBoardRecruiterRequestDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.onBoardNewRecruiter(onBoardRecruiterRequestDto));

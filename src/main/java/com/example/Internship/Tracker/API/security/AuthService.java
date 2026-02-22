@@ -37,7 +37,6 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(body.getEmail(),body.getPassword())
         );
-
         //Principals() -> Username and details
         //Credentials() -> Password
         //Details() -> session id and ip address

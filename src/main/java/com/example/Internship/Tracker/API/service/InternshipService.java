@@ -14,4 +14,6 @@ public interface InternshipService {
     InternshipDtoResponse getInternshpById(Long id);
 
     List<InternshipDtoResponse> getInternshipByCompanyId(@Valid Long companyId);
+
+    void deleteInternship(Long id);
 }

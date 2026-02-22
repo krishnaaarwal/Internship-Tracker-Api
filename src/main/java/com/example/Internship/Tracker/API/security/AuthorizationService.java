@@ -1,8 +1,10 @@
 package com.example.Internship.Tracker.API.security;
 
 import com.example.Internship.Tracker.API.entity.ApplicationEntity;
+import com.example.Internship.Tracker.API.entity.InternshipEntity;
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.ApplicationRepository;
+import com.example.Internship.Tracker.API.repository.InternshipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthorizationService {
     private final ApplicationRepository applicationRepository;
+    private final InternshipRepository internshipRepository;
 
     public boolean isAdmin(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -41,5 +44,17 @@ public class AuthorizationService {
         if (user.getCompany() == null) return false;
 
         return user.getCompany().getId().equals(companyId);
+    }
+
+    public boolean belongsToInternship(Long internshipId){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) auth.getPrincipal();
+
+        if (user.getCompany() == null) return false;
+
+        InternshipEntity internship = internshipRepository.findById(internshipId)
+                .orElseThrow(() -> new IllegalArgumentException("Internship not found"));
+
+        return internship.getCompany().getId().equals(user.getCompany().getId());
     }
 }

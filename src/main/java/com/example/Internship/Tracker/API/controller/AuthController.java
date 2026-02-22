@@ -23,6 +23,7 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto body){
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(body));
     }
+
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto body){
         return ResponseEntity.status(HttpStatus.OK).body(authService.signup(body));
