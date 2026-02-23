@@ -7,6 +7,8 @@ import com.example.Internship.Tracker.API.repository.CompanyRepository;
 import com.example.Internship.Tracker.API.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -39,7 +41,7 @@ public class CompanyServiceImplementation implements CompanyService {
     }
 
     @PreAuthorize("hasAuthority('COMPANY_WRITE')")
-    @Cacheable(cacheNames = CACHE,key = "#result.id")
+    @CachePut(cacheNames = CACHE, key = "#result.id")
     @Override
     public CompanyDtoResponse createCompany(CompanyDtoRequest companyDtoRequest) {
         CompanyEntity companyEntity = modelMapper.map(companyDtoRequest, CompanyEntity.class);
@@ -48,7 +50,7 @@ public class CompanyServiceImplementation implements CompanyService {
     }
 
     @PreAuthorize("hasAuthority('COMPANY_WRITE') and (@authz.belongsToCompany(#id) or @authz.isAdmin())")
-    @Cacheable(cacheNames = CACHE,key = "#id")
+    @CachePut(cacheNames = CACHE, key = "#id")
     @Override
     public CompanyDtoResponse updateCompany(Long id, CompanyDtoRequest updatedCompany) {
        CompanyEntity companyEntity = companyRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Company not found with id:"+id+"! Enter valid id."));
@@ -84,7 +86,7 @@ public class CompanyServiceImplementation implements CompanyService {
     }
 
     @PreAuthorize("hasAuthority('COMPANY_DELETE') and (@authz.belongsToCompany(#id) or @authz.isAdmin())")
-    @Cacheable(cacheNames = CACHE,key = "#id")
+    @CacheEvict(cacheNames = CACHE, key = "#id")
     @Override
     public void  deleteCompany(Long id) {
        if(!companyRepository.existsById(id)){
