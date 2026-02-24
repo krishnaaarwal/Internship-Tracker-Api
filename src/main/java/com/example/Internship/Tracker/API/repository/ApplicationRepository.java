@@ -6,11 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 // com.example.Internship.Tracker.API.dto.application_dto.ApplicationStatusCountDtoResponse
 
+@Repository
+@EnableJpaRepositories
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity,Long> {
     List<ApplicationEntity> findByUserId(Long userId);
 
