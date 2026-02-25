@@ -4,7 +4,7 @@ import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
-import com.example.Internship.Tracker.API.security.AuthService;
+import com.example.Internship.Tracker.API.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

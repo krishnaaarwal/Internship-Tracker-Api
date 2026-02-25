@@ -1,4 +1,4 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.implementation;
 
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

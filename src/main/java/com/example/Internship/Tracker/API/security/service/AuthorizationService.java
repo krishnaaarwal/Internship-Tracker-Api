@@ -1,4 +1,4 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.service;
 
 import com.example.Internship.Tracker.API.entity.ApplicationEntity;
 import com.example.Internship.Tracker.API.entity.InternshipEntity;

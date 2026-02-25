@@ -1,7 +1,8 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.filter;
 
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.UserRepository;
+import com.example.Internship.Tracker.API.security.util.AuthUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

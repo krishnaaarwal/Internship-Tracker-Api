@@ -1,4 +1,4 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.util;
 
 import com.example.Internship.Tracker.API.config.type.AuthProviderType;
 import com.example.Internship.Tracker.API.entity.UserEntity;

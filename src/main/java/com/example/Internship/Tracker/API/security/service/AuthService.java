@@ -1,4 +1,4 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.service;
 
 import com.example.Internship.Tracker.API.config.type.AuthProviderType;
 import com.example.Internship.Tracker.API.config.type.RoleType;
@@ -8,6 +8,7 @@ import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
 import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.UserRepository;
+import com.example.Internship.Tracker.API.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

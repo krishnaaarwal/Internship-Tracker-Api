@@ -1,6 +1,7 @@
-package com.example.Internship.Tracker.API.security;
+package com.example.Internship.Tracker.API.security.oauth2;
 
 import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
+import com.example.Internship.Tracker.API.security.service.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
