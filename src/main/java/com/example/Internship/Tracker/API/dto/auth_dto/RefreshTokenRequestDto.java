@@ -1,16 +1,12 @@
 package com.example.Internship.Tracker.API.dto.auth_dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class LoginResponseDto {
-   String jwt;
-   String refreshToken;
-   Long userid;
+public class RefreshTokenRequestDto {
+    private String token;
 }

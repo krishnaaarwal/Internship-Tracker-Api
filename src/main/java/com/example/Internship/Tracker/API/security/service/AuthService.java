@@ -2,15 +2,15 @@ package com.example.Internship.Tracker.API.security.service;
 
 import com.example.Internship.Tracker.API.config.type.AuthProviderType;
 import com.example.Internship.Tracker.API.config.type.RoleType;
-import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
+import com.example.Internship.Tracker.API.dto.auth_dto.*;
+import com.example.Internship.Tracker.API.entity.RefreshTokenEntity;
 import com.example.Internship.Tracker.API.entity.UserEntity;
+import com.example.Internship.Tracker.API.error.RefreshTokenNotFoundException;
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import com.example.Internship.Tracker.API.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -32,6 +33,7 @@ public class AuthService {
     private final AuthUtil authUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
 
     public LoginResponseDto login(LoginRequestDto body) {
         // 1. AuthenticationManager delegates to AuthenticationProvider
@@ -48,10 +50,16 @@ public class AuthService {
         // 2. Principal is the authenticated user (UserDetails implementation)
         UserEntity user = (UserEntity) authentication.getPrincipal();
 
-        // 3. Generate token
+        // 3. Refresh token & Generate token
+        RefreshTokenEntity refreshToken = refreshTokenService.generateRefreshToken(user.getId());
         String token = authUtil.generateAccessToken(user);
 
-        return new LoginResponseDto(token, user.getId());
+       return  LoginResponseDto.builder()
+                .jwt(token)
+                .refreshToken(refreshToken.getToken())
+               .userid(user.getId())
+               .build();
+
     }
 
     public UserEntity signupInternal(SignupRequestDto body,AuthProviderType authProviderType,String providerId){
@@ -110,8 +118,24 @@ public class AuthService {
             throw new BadCredentialsException("This email is already registered with provider : "+emailUser.getProviderType());
         }
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(authUtil.generateAccessToken(user), user.getId());
+        LoginResponseDto loginResponseDto = new LoginResponseDto(authUtil.generateAccessToken(user),refreshTokenService.generateRefreshToken(user.getId()).getToken(), user.getId());
 
         return ResponseEntity.ok(loginResponseDto);
+    }
+
+    @Transactional
+    public LoginResponseDto refreshToken(RefreshTokenRequestDto body) {
+        RefreshTokenEntity refreshToken = refreshTokenService.findToken(body.getToken())
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found: " + body.getToken()));
+
+        refreshToken = refreshTokenService.verifyAndRotate(refreshToken);
+        UserEntity user = refreshToken.getUser();
+        String accessToken = authUtil.generateAccessToken(user);
+
+        return LoginResponseDto.builder()
+                .jwt(accessToken)
+                .refreshToken(refreshToken.getToken())
+                .userid(user.getId())
+                .build();
     }
 }

@@ -1,10 +1,11 @@
 package com.example.Internship.Tracker.API.controller;
 
-import com.example.Internship.Tracker.API.dto.auth_dto.LoginRequestDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.LoginResponseDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.SignupRequestDto;
-import com.example.Internship.Tracker.API.dto.auth_dto.SignupResponseDto;
+import com.example.Internship.Tracker.API.dto.auth_dto.*;
+import com.example.Internship.Tracker.API.entity.RefreshTokenEntity;
+import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.security.service.AuthService;
+import com.example.Internship.Tracker.API.security.service.RefreshTokenService;
+import com.example.Internship.Tracker.API.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final AuthUtil authUtil;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto body){
@@ -27,5 +30,10 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto body){
         return ResponseEntity.status(HttpStatus.OK).body(authService.signup(body));
+    }
+
+    @PostMapping("/refreshToken")
+    public ResponseEntity<LoginResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto body){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.refreshToken(body));
     }
 }
