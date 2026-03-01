@@ -7,6 +7,7 @@ import com.example.Internship.Tracker.API.dto.user_dto.UserDtoResponse;
 import com.example.Internship.Tracker.API.entity.CompanyEntity;
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.repository.CompanyRepository;
+import com.example.Internship.Tracker.API.repository.RefreshTokenRepository;
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import com.example.Internship.Tracker.API.service.UserService;
 import jakarta.transaction.Transactional;
@@ -31,9 +32,11 @@ public class UserServiceImplementation implements UserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final ModelMapper modelMapper;
+    private final  RefreshTokenRepository refreshTokenRepository;
     private static final String CACHE = "users";
 
     @PreAuthorize("hasAuthority('USER_READ') and @authz.isAdmin()")
+    @Transactional
     @Override
     public List<UserDtoResponse> getUserList() {
         List<UserEntity> userEntityList = userRepository.findAll();
@@ -43,6 +46,7 @@ public class UserServiceImplementation implements UserService {
 
     @PreAuthorize("hasAuthority('USER_READ') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @Cacheable(cacheNames = CACHE,key = "#id")
+    @Transactional
     @Override
     public UserDtoResponse getUserById(Long id) {
         UserEntity userEntity = userRepository.findById(id)
@@ -53,26 +57,29 @@ public class UserServiceImplementation implements UserService {
 
     @PreAuthorize("hasAuthority('USER_WRITE')")
     @CachePut(cacheNames = CACHE , key = "#result.id")
+    @Transactional
     @Override
     public UserDtoResponse createUsers(UserDtoRequest user) {
         UserEntity newUserEntity = modelMapper.map(user, UserEntity.class); // UserDtoRequest to UserEntity
         UserEntity userEntity = userRepository.save(newUserEntity);  // Save that Entity and local variable for further converting to return
-        UserDtoResponse response = modelMapper.map(userEntity, UserDtoResponse.class);  //Entity to UserDtoResponse for my controller
-        return response;  //Returning the Response of UserDto
+        return modelMapper.map(userEntity, UserDtoResponse.class);  //Entity to UserDtoResponse for my controller and  //Returning the Response of UserDto
     }
 
     @PreAuthorize("hasAuthority('USER_DELETE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @CacheEvict(cacheNames = CACHE,key = "#id")
+    @Transactional
     @Override
     public void deleteUsers(Long id) {
         if (!userRepository.existsById(id)) {
             throw new IllegalArgumentException("User with id:" + id + "not found");
         }
+        refreshTokenRepository.deleteByUserId(id);
         userRepository.deleteById(id);
     }
 
     @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @CachePut(cacheNames = CACHE, key = "#id")
+    @Transactional
     @Override
     public UserDtoResponse updateUsers(Long id, UserDtoRequest user) {
 
@@ -84,6 +91,7 @@ public class UserServiceImplementation implements UserService {
 
     @PreAuthorize("hasAuthority('USER_WRITE') and (@authz.isOwner(#id) or @authz.isAdmin())")
     @CachePut(cacheNames = CACHE, key = "#id")
+    @Transactional
     @Override
     public UserDtoResponse updatePartialUsers(Long id, Map<String, Object> changes) {
         UserEntity foundUser = userRepository.findById(id).orElseThrow( () ->new IllegalArgumentException("User Not found with id:"+id));

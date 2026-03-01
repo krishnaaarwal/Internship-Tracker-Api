@@ -6,6 +6,7 @@ import com.example.Internship.Tracker.API.dto.auth_dto.*;
 import com.example.Internship.Tracker.API.entity.RefreshTokenEntity;
 import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.error.RefreshTokenNotFoundException;
+import com.example.Internship.Tracker.API.repository.RefreshTokenRepository;
 import com.example.Internship.Tracker.API.repository.UserRepository;
 import com.example.Internship.Tracker.API.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
@@ -137,5 +138,11 @@ public class AuthService {
                 .refreshToken(refreshToken.getToken())
                 .userid(user.getId())
                 .build();
+    }
+
+    public void logout(LogoutRequestDto body) {
+        String token = body.getRefreshToken();
+
+       refreshTokenService.deleteByToken(token);
     }
 }

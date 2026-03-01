@@ -47,4 +47,11 @@ public class RefreshTokenService {
         return refreshTokenEntity;
 
     }
+
+    public void deleteByToken(String token) {
+       RefreshTokenEntity entity =  refreshTokenRepository.findByToken(token).orElse(null);
+       if(entity!=null){
+           refreshTokenRepository.delete(entity);
+       }
+    }
 }
