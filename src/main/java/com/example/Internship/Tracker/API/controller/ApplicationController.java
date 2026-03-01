@@ -3,6 +3,7 @@ package com.example.Internship.Tracker.API.controller;
 import com.example.Internship.Tracker.API.dto.application_dto.ApplicationDtoRequest;
 import com.example.Internship.Tracker.API.dto.application_dto.ApplicationDtoResponse;
 import com.example.Internship.Tracker.API.dto.application_dto.ApplicationStatusCountDtoResponse;
+import com.example.Internship.Tracker.API.entity.UserEntity;
 import com.example.Internship.Tracker.API.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,43 +18,54 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class ApplicationController {
 
     private final ApplicationService applicationService;
 
-    @GetMapping("/applications/user/{userId}/all")
+    @GetMapping("/{userId}/applications/all")
     public ResponseEntity<List<ApplicationDtoResponse>> getApplications(@PathVariable Long userId){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.getApplications(userId));
     }
 
 
-    @GetMapping("/applications/user/{userId}")
+    @GetMapping("/{userId}/applications")
     public ResponseEntity<Page<ApplicationDtoResponse>> getApplicationsBasedOnAppliedDate(@PathVariable @Valid Long userId, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(applicationService.applicationsOrderByAppliedDate(userId,pageable));
     }
 
 
     @DeleteMapping("/applications/{id}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable Long id){
+    public ResponseEntity<Void> deleteApplication(@PathVariable Long id) {
         applicationService.deleteApplication(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 
 
     @PostMapping("/applications")
-    public ResponseEntity<ApplicationDtoResponse> createApplication(@RequestBody ApplicationDtoRequest application){
-        return ResponseEntity.status(HttpStatus.CREATED).body(applicationService.createApplication(application));
+    public ResponseEntity<ApplicationDtoResponse> createApplication(
+            @RequestBody ApplicationDtoRequest application,
+            Authentication authentication) {
+
+        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
+        Long currentUserId = currentUser.getId();
+        application.setUserId(currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(applicationService.createApplication(application));
     }
 
 
     @PutMapping("/applications/{id}/status")
-    public ResponseEntity<ApplicationDtoResponse> updateApplication(@PathVariable Long id,@RequestBody @Valid ApplicationDtoRequest application){
-        return ResponseEntity.status(HttpStatus.OK).body(applicationService.updateApplication(id,application));
+    public ResponseEntity<ApplicationDtoResponse> updateApplication(
+            @PathVariable Long id,
+            @RequestBody @Valid ApplicationDtoRequest application) {
+        return ResponseEntity.ok(applicationService.updateApplication(id, application));
     }
 
 
-    @GetMapping("/applications/analytics/user/{userId}/status-count")
-    public ResponseEntity<List<ApplicationStatusCountDtoResponse>> getUserApplicationStatus(@PathVariable Long userId){
-        return ResponseEntity.status(HttpStatus.OK).body(applicationService.countAllApplicationStatus(userId));
+    @GetMapping("/{userId}/applications/status-count")
+    public ResponseEntity<List<ApplicationStatusCountDtoResponse>> getUserApplicationStatus(
+            @PathVariable Long userId) {
+        return ResponseEntity.ok(applicationService.countAllApplicationStatus(userId));
     }
 }

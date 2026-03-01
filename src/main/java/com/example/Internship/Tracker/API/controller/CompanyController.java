@@ -19,13 +19,13 @@ import java.util.Map;
 public class CompanyController {
     private final CompanyService companyService;
 
-    @GetMapping("/company")
+    @GetMapping("/public/company")
     public ResponseEntity<List<CompanyDtoResponse>> getAllCompany(){
         return  ResponseEntity.status(HttpStatus.OK).body(companyService.getAllCompany());
 
     }
 
-    @GetMapping("/company/{id}")
+    @GetMapping("/public/company/{id}")
     public ResponseEntity<CompanyDtoResponse> getCompanyById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.getCompanyById(id));
     }
@@ -35,13 +35,12 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(companyService.createCompany(companyDtoRequest));
     }
 
-
-
+    @PutMapping("/company/{id}")
     public ResponseEntity<CompanyDtoResponse> updateCompany(@PathVariable Long id , @RequestBody @Valid CompanyDtoRequest updatedCompany){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.updateCompany(id,updatedCompany));
     }
 
-@PatchMapping("/company/{id}")
+    @PatchMapping("/company/{id}")
     public  ResponseEntity<CompanyDtoResponse> updatePartialCompany(@PathVariable Long id, Map<String,Object> updates){
         return ResponseEntity.status(HttpStatus.OK).body(companyService.updatePartialCompany(id,updates));
     }

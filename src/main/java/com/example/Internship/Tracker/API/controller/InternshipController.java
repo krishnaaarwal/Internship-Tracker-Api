@@ -19,30 +19,30 @@ public class InternshipController {
     private final InternshipService internshipService;
 
 
-    @PostMapping("/internships")
+    @PostMapping("/company/internships")
     public ResponseEntity<InternshipDtoResponse> createInternship(@RequestBody @Valid InternshipDtoRequest internshipDtoRequest){
         return ResponseEntity.status(HttpStatus.CREATED).body(internshipService.createInternship(internshipDtoRequest));
     }
 
 
-    @GetMapping("/internships")
+    @GetMapping("/public/internships")
     public List<InternshipDtoResponse> getAllInternships(){
         return internshipService.getAllInternships();
     }
 
 
-    @GetMapping("/internships/{id}")
+    @GetMapping("/public/internships/{id}")
     public ResponseEntity<InternshipDtoResponse> getInternshipById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(internshipService.getInternshpById(id));
     }
 
 
-    @GetMapping("internships/company/{companyId}")
+    @GetMapping("public/internships/company/{companyId}")
     public ResponseEntity<List<InternshipDtoResponse>> getInternshipByCompanyId(@PathVariable @Valid Long companyId){
         return ResponseEntity.status(HttpStatus.OK).body(internshipService.getInternshipByCompanyId(companyId));
     }
 
-    @DeleteMapping("internships/{id}")
+    @DeleteMapping("company/internships/{id}")
     public ResponseEntity<Void> deleteInternship(@PathVariable Long id){
         internshipService.deleteInternship(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

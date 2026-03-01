@@ -7,8 +7,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,14 +17,12 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
-
-
-    @GetMapping("/users/{id}")
+    @GetMapping("/public/users/{id}")
     public ResponseEntity<UserDtoResponse> getUsersById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id));
     }
 
-    @GetMapping("/users")
+    @GetMapping("/public/users")
     public ResponseEntity<List<UserDtoResponse>> getAllUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserList());
     }
